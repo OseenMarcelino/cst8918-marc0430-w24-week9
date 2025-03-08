@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+terraform fmt -check -recursive || exit 1
+terraform validate || exit 1
+tflint || exit 1
