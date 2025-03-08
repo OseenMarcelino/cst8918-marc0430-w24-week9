@@ -1,5 +1,4 @@
 name: Validate terraform fmt
-
 on:
   pull_request:
     branches:
@@ -15,36 +14,32 @@ jobs:
     runs-on: ubuntu-latest
     name: terraform fmt check
     outputs:
-      CHECK_STATUS: ${{ steps.terraform_fmt.outputs.CHECK_STATUS }}  # Adjust output to reference the correct step
+      CHECK_STATUS: "${{ env.CHECK_STATUS }}"
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 2
-
       - name: Fetch changed files
         id: pr_files
         uses: jitterbit/get-changed-files@v1
         with:
           format: "space-delimited"
-
       - name: Configure terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.2.4
-
       - name: Validate terraform fmt (added_modified)
-        id: terraform_fmt  # Add an id to refer to the output
         run: |
           set +e
+
           echo "CHECK_STATUS=0" >> $GITHUB_ENV
-          
-          # Loop through the changed files and check terraform formatting
+
           for changed_file in ${{ steps.pr_files.outputs.added_modified }}; do
             echo "Checking terraform fmt on ${changed_file}..."
 
             if [[ $changed_file == *.tf ]]; then
               terraform fmt -check $changed_file
-              FMT_STATUS=$?
+              FMT_STATUS=$(echo $?)
 
               if [[ $FMT_STATUS -ne 0 ]]; then
                 echo "❌ terraform fmt failed - ${changed_file}" >> $GITHUB_STEP_SUMMARY
@@ -52,11 +47,6 @@ jobs:
               fi
             fi
           done
-
-        # Output the final CHECK_STATUS for the next steps
-        outputs:
-          CHECK_STATUS: ${{ env.CHECK_STATUS }}
-
       - name: Process check
         if: always()
-        run: exit ${{ steps.terraform_fmt.outputs.CHECK_STATUS }}  # Exit with the correct status
+        run: exit $CHECK_STATUS
