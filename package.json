@@ -1,0 +1,24 @@
+{
+  "name": "cst8918-marc0430-w24-week9",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OseenMarcelino/cst8918-marc0430-w24-week9.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OseenMarcelino/cst8918-marc0430-w24-week9/issues"
+  },
+  "homepage": "https://github.com/OseenMarcelino/cst8918-marc0430-w24-week9#readme",
+  "description": "",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}
