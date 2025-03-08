@@ -53,13 +53,15 @@ jobs:
 
   validate_terraform:
     runs-on: ubuntu-latest
-    name: Validate Terraform module
+    name: Terraform validate
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: terraform validate
-        uses: dflook/terraform-validate@v1
+      - uses: actions/checkout@v3
+      - name: Configure terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          path: my-terraform-config
+          terraform_version: 1.2.4
+      - name: Validate terraform configuration
+        run: |
+          terraform init
+          terraform validate
           
