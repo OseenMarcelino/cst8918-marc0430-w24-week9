@@ -54,13 +54,43 @@ jobs:
   validate_terraform:
     runs-on: ubuntu-latest
     name: Terraform validate
+    outputs:
+      VALIDATE_STATUS: "${{ env.VALIDATE_STATUS }}"
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Fetch changed files
+        id: pr_files
+        uses: jitterbit/get-changed-files@v1
+        with:
+          format: "space-delimited"
+
       - name: Configure Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.2.4
-      - name: Terraform Init
-        run: terraform init
-      - name: Terraform Validate
-        run: terraform validate
+
+      - name: Validate terraform configuration (added_modified)
+        run: |
+          set +e
+          echo "VALIDATE_STATUS=0" >> $GITHUB_ENV
+          
+          for changed_file in ${{ steps.pr_files.outputs.added_modified }}; do
+            echo "Validating Terraform config for ${changed_file}..."
+            if [[ $changed_file == *.tf ]]; then
+              terraform init -backend=false
+              terraform validate $changed_file
+              VALIDATE_STATUS=$?
+
+              if [[ $VALIDATE_STATUS -ne 0 ]]; then
+                echo "❌ terraform validate failed - ${changed_file}" >> $GITHUB_STEP_SUMMARY
+                echo "VALIDATE_STATUS=1" >> $GITHUB_ENV
+              fi
+            fi
+          done
+
+      - name: Process validation check
+        if: always()
+        run: exit $VALIDATE_STATUS
