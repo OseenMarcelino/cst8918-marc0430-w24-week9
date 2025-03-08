@@ -9,6 +9,7 @@ package-lock.json
 .idea/
 .vscode/
 
+
 # Ignore Terraform files
 .terraform/
 terraform.tfstate
